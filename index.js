@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 
 app.use(express.json());
-
+app.use(middleware);
+app.use(logger);
 let courses = [
     {id:1, name:'course1'},
     {id:2, name:'course2'},
@@ -19,7 +20,7 @@ app.post('/courses',(req,res)=>{
         name: req.body.name
     };
     courses.push(course);
-    console.log(req.body);
+    // console.log(req.body);
 });
 //update call
 app.put('/courses/:id',(req,res)=>{
@@ -46,5 +47,18 @@ app.delete('/courses/:id',(req,res)=>{
     courses.splice(index,1);
     res.send(courses);
 });
+
+//custom middle ware
+function middleware(req,res,next){
+    console.log('called...');
+    next();
+}
+//logger
+function logger(req, res, next) {
+    // Log the HTTP method, IP address, hostname, and current date/time
+    console.log(`Method: ${req.method} | IP: ${req.ip} | Hostname: ${req.hostname} | Date: ${new Date()}`);
+    next();
+}
+
 //listen the port 
 app.listen(3000,()=>{console.log('Listening on port 3000...')});
