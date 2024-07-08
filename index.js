@@ -2,15 +2,17 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 app.use(express.json());
+require('dotenv').config();
 // app.use(middleware);
 // app.use(logger);
 
-mongoose.connect("mongodb+srv://HarshKumarPatwa:Harsh3446@cluster0.mccbu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose
+    .connect(process.env.MONGO_URL)
     .then(() => {
         console.log("DB Connection Successful");
     })
     .catch((err) => {
-        console.log("Failed",err);
+        console.log("Failed ",err);
     });
 
 const productSchema = new mongoose.Schema({
@@ -29,9 +31,7 @@ const productSchema = new mongoose.Schema({
     category:{
         type:String,
         required:true
-    
     }
-    
 });
 const productModel = mongoose.model('products', productSchema);
 
@@ -107,6 +107,33 @@ app.post('/api/products',async(req,res)=>{
     return res.status(201).json({message:"Product Created"});
 });
 
+//get call for all products
+app.get('/api/products',async(req,res)=>{
+    const products = await productModel.find();
+    return res.status(200).json(products);
+});
+
+//get call by id
+app.get('/api/products/:id',async(req,res)=>{
+    const products = await productModel.findById(req.params.id);
+    return res.status(200).json(products);
+
+});
+
+//update call
+app.put('/api/products/:id',async(req,res)=>{
+    const updatedProduct = await productModel.findByIdAndUpdate(
+        req.params.id,
+        req.body
+    );
+    return res.status(200).json(updatedProduct);
+});
+
+//delete call
+app.delete('/api/products/:id',async(req,res)=>{
+    const product = await productModel.findByIdAndDelete(req.params.id);
+    return res.json({message:"Product Deleted"});
+});
 //listen the port 
 app.listen(3000, () => { console.log('Listening on port 3000...') });
 
