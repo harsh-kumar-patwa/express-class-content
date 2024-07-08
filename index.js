@@ -3,6 +3,8 @@ const app = express();
 const mongoose = require('mongoose');
 app.use(express.json());
 require('dotenv').config();
+const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
 // app.use(middleware);
 // app.use(logger);
 
@@ -15,28 +17,12 @@ mongoose
         console.log("Failed ",err);
     });
 
-const productSchema = new mongoose.Schema({
-    product_name: {
-        type: String,
-        required: true
-    },
-    product_price: {
-        type: String,
-        required: true
-    },
-    isInStock:{
-        type:Boolean,
-        required:true
-    },
-    category:{
-        type:String,
-        required:true
-    }
-});
-const productModel = mongoose.model('products', productSchema);
+app.use('/api/products',productRoutes);
+app.use('/api/users',userRoutes);
 
 
-
+//listen the port 
+app.listen(3000, () => { console.log('Listening on port 3000...') });
 // let courses = [
 //     { id: 1, name: 'course1' },
 //     { id: 2, name: 'course2' },
@@ -94,47 +80,6 @@ const productModel = mongoose.model('products', productSchema);
 // }
 
 
-//post call
-app.post('/api/products',async(req,res)=>{
-    const body = req.body;
-    const product = productModel.create({
-        product_name:body.product_name,
-        product_price:body.product_price,
-        isInStock:body.isInStock,
-        category:body.category
-    });
-    console.log(product);
-    return res.status(201).json({message:"Product Created"});
-});
 
-//get call for all products
-app.get('/api/products',async(req,res)=>{
-    const products = await productModel.find();
-    return res.status(200).json(products);
-});
-
-//get call by id
-app.get('/api/products/:id',async(req,res)=>{
-    const products = await productModel.findById(req.params.id);
-    return res.status(200).json(products);
-
-});
-
-//update call
-app.put('/api/products/:id',async(req,res)=>{
-    const updatedProduct = await productModel.findByIdAndUpdate(
-        req.params.id,
-        req.body
-    );
-    return res.status(200).json(updatedProduct);
-});
-
-//delete call
-app.delete('/api/products/:id',async(req,res)=>{
-    const product = await productModel.findByIdAndDelete(req.params.id);
-    return res.json({message:"Product Deleted"});
-});
-//listen the port 
-app.listen(3000, () => { console.log('Listening on port 3000...') });
 
 
